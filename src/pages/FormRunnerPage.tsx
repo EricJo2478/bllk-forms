@@ -189,10 +189,6 @@ export default function FormRunnerPage({ formId }: Props) {
             {staffA && staffB && staffA === staffB && (
               <div className="text-danger mt-2">Pick two different people.</div>
             )}
-            <div className="form-text mt-2">
-              Tip: deep link with <code>?s=Alice,Bob</code> in the URL (print as
-              a QR on the rig).
-            </div>
           </Card.Body>
         </Card>
       )}
