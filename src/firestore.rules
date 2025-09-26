@@ -1,0 +1,43 @@
+// submissions: create but not read others’ crews unless kiosk is trusted
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function isToday(dateKey) {
+      // YYYY-MM-DD equality to now (client-side; server still enforces create only)
+      return true; // keep simple on Spark; you can add stricter checks later
+    }
+
+    match /forms/{formId} {
+      allow read: if true;      // public form defs
+      allow write: if false;     // edit via console only
+    }
+
+    match /staff/{formId} {
+      allow read: if true;      // public form defs
+      allow write: if false;     // edit via console only
+    }
+    // Allow anyone to read staff names and forms
+    // match /staff/{id} { allow read: if true; allow write: if request.auth != null && request.auth.token.email in ['you@org.com']; }
+    // match /forms/{id} { allow read: if true; allow write: if request.auth != null && request.auth.token.email in ['you@org.com']; }
+
+    match /submissions/{id} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.staff is list
+        && request.resource.data.staff.size() == 2
+        && request.resource.data.staffKey is string
+        && request.resource.data.formId is string
+        && request.resource.data.answers is map;
+      allow update, delete: if false;
+    }
+    
+    // Allow clients to create/update a simple integer counter per key.
+    match /counters/{counterId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.value is int
+                            && (request.resource.data.value == 1  // new
+                                || request.resource.data.value == resource.data.value + 1); // +1
+      allow delete: if false;
+    }
+  }
+}
