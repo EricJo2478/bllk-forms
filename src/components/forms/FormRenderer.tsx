@@ -3,7 +3,7 @@ import { Button, Form } from "react-bootstrap";
 import { Controller, Path, useForm, useWatch } from "react-hook-form";
 import type { FormDef } from "../../types/form";
 import { createSubmission } from "../../services/submissions";
-import "./styles/touch-fields.css";
+import "../../styles/touch-fields.css";
 
 type FormValues = Record<string, unknown>;
 
