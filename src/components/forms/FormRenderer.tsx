@@ -31,6 +31,9 @@ function evalShowIf(cond: ShowIf | undefined, values: FormValues): boolean {
   switch (op) {
     case "eq":
       // if field value is array, treat eq as “array includes value”
+      if (typeof v === "boolean") {
+        return v ? cval === "true" : cval === "false";
+      }
       return isArr ? v.includes(cval) : v === cval;
     case "neq":
       return isArr ? !v.includes(cval) : v !== cval;
