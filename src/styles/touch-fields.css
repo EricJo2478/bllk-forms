@@ -1,0 +1,38 @@
+/* Scope to the form runner so it doesn't affect admin pages */
+.form-runner .option-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 576px) {
+  .form-runner .option-grid {
+    grid-template-columns: 1fr 1fr; /* two columns on small+ */
+  }
+}
+
+.form-runner .touch-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;                /* ~48–56px tall rows */
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  background: var(--bs-body-tertiary);
+  user-select: none;
+}
+
+.form-runner .touch-item:active {
+  filter: brightness(0.97);
+}
+
+.form-runner .touch-item .form-check-input {
+  width: 1.35rem;                      /* bigger control */
+  height: 1.35rem;
+  margin-top: 0;                       /* center vertically */
+}
+
+.form-runner .touch-item .label-text {
+  font-size: 1.05rem;                  /* readable on mobile */
+  line-height: 1.2;
+}

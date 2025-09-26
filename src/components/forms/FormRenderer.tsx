@@ -3,6 +3,7 @@ import { Button, Form } from "react-bootstrap";
 import { Controller, Path, useForm, useWatch } from "react-hook-form";
 import type { FormDef } from "../../types/form";
 import { createSubmission } from "../../services/submissions";
+import "./styles/touch-fields.css";
 
 type FormValues = Record<string, unknown>;
 
@@ -141,38 +142,51 @@ export default function FormRenderer({
             <Controller
               name={f.id as Path<FormValues>}
               control={control}
-              defaultValue={undefined} // <-- important: undefined until user chooses
+              defaultValue={undefined} // undefined until user chooses
               rules={rules}
               render={({ field }) => {
                 const val = field.value as boolean | undefined;
+                const yesId = `${f.id}__yes`;
+                const noId = `${f.id}__no`;
+
                 return (
-                  <div className="d-flex flex-wrap gap-3">
-                    <Form.Check
-                      type="radio"
-                      id={`${f.id}__yes`}
-                      name={f.id}
-                      inline
-                      label={yesLabel}
-                      checked={val === true}
-                      onChange={() => field.onChange(true)}
-                    />
-                    <Form.Check
-                      type="radio"
-                      id={`${f.id}__no`}
-                      name={f.id}
-                      inline
-                      label={noLabel}
-                      checked={val === false}
-                      onChange={() => field.onChange(false)}
-                    />
-                    {/* Optional tiny clear to go back to undefined */}
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={() => field.onChange(undefined)}
-                    >
-                      Clear
-                    </Button>
+                  <div className="option-grid">
+                    {/* YES */}
+                    <label className="touch-item" htmlFor={yesId}>
+                      <Form.Check
+                        id={yesId}
+                        type="radio"
+                        name={f.id}
+                        checked={val === true}
+                        onChange={() => field.onChange(true)}
+                        className="m-0"
+                      />
+                      <span className="label-text">{yesLabel}</span>
+                    </label>
+
+                    {/* NO */}
+                    <label className="touch-item" htmlFor={noId}>
+                      <Form.Check
+                        id={noId}
+                        type="radio"
+                        name={f.id}
+                        checked={val === false}
+                        onChange={() => field.onChange(false)}
+                        className="m-0"
+                      />
+                      <span className="label-text">{noLabel}</span>
+                    </label>
+
+                    {/* CLEAR (only if not required) */}
+                    {!f.required && (
+                      <button
+                        type="button"
+                        className="touch-item btn w-100 text-start"
+                        onClick={() => field.onChange(undefined)}
+                      >
+                        <span className="label-text">Clear</span>
+                      </button>
+                    )}
                   </div>
                 );
               }}
@@ -218,35 +232,46 @@ export default function FormRenderer({
               control={control}
               defaultValue={[]}
               rules={rules}
-              render={({ field }) => (
-                <div>
-                  {opts.length === 0 ? (
-                    <div className="text-muted">No options.</div>
-                  ) : (
-                    opts.map((opt) => {
-                      const checked =
-                        Array.isArray(field.value) && field.value.includes(opt);
-                      return (
-                        <Form.Check
-                          key={opt}
-                          type="checkbox"
-                          id={`${f.id}__${opt}`}
-                          label={opt}
-                          checked={checked}
-                          onChange={(e) => {
-                            const next = new Set<string>(
-                              Array.isArray(field.value) ? field.value : []
-                            );
-                            if (e.currentTarget.checked) next.add(opt);
-                            else next.delete(opt);
-                            field.onChange(Array.from(next));
-                          }}
-                        />
-                      );
-                    })
-                  )}
-                </div>
-              )}
+              render={({ field }) => {
+                const arr = Array.isArray(field.value)
+                  ? (field.value as string[])
+                  : [];
+                const toggle = (opt: string) => {
+                  const cur = new Set<string>(arr);
+                  if (cur.has(opt)) cur.delete(opt);
+                  else cur.add(opt);
+                  field.onChange(Array.from(cur));
+                };
+
+                return (
+                  <div className="option-grid">
+                    {opts.length === 0 ? (
+                      <div className="text-muted">No options.</div>
+                    ) : (
+                      opts.map((opt) => {
+                        const checked = arr.includes(opt);
+                        const inputId = `${f.id}__${opt.replace(/\s+/g, "_")}`;
+                        return (
+                          <label
+                            key={opt}
+                            className="touch-item"
+                            htmlFor={inputId}
+                          >
+                            <Form.Check
+                              id={inputId}
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggle(opt)}
+                              className="m-0"
+                            />
+                            <span className="label-text">{opt}</span>
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              }}
             />
             <Err id={f.id} />
           </Form.Group>
@@ -291,26 +316,29 @@ export default function FormRenderer({
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <h2 className="mb-2">{formDef.title}</h2>
-      <div className="text-muted mb-3">
-        {formDef.period === "weekly" ? "Week" : "Date"}: <code>{dateKey}</code>{" "}
-        · Staff: <strong>{staff[0]}</strong> & <strong>{staff[1]}</strong>
-      </div>
+    <div className="form-runner">
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <h2 className="mb-2">{formDef.title}</h2>
+        <div className="text-muted mb-3">
+          {formDef.period === "weekly" ? "Week" : "Date"}:{" "}
+          <code>{dateKey}</code> · Staff: <strong>{staff[0]}</strong> &{" "}
+          <strong>{staff[1]}</strong>
+        </div>
 
-      {(formDef.sections ?? []).map((sec, i) => (
-        <fieldset key={i} className="mb-4">
-          {sec.title && <legend className="h5">{sec.title}</legend>}
-          {(sec.fields ?? []).map((f: any) => renderField(f))}
-        </fieldset>
-      ))}
+        {(formDef.sections ?? []).map((sec, i) => (
+          <fieldset key={i} className="mb-4">
+            {sec.title && <legend className="h5">{sec.title}</legend>}
+            {(sec.fields ?? []).map((f: any) => renderField(f))}
+          </fieldset>
+        ))}
 
-      <div className="text-muted mb-2">
-        <span className="text-danger">*</span> required
-      </div>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Submitting…" : "Submit"}
-      </Button>
-    </Form>
+        <div className="text-muted mb-2">
+          <span className="text-danger">*</span> required
+        </div>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting…" : "Submit"}
+        </Button>
+      </Form>
+    </div>
   );
 }
