@@ -71,9 +71,7 @@ export default function App() {
         path="/admin"
         element={
           <AdminGuard>
-            <PageLayout admin>
-              <PageLayout admin>{false}</PageLayout>
-            </PageLayout>
+            <PageLayout admin>{false}</PageLayout>
           </AdminGuard>
         }
       />
