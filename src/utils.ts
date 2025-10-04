@@ -30,3 +30,11 @@ export function dateKeyWeekly(d = new Date()) {
   const { isoYear, week } = getISOWeekYear(d);
   return `${isoYear}-W${String(week).padStart(2, "0")}`; // e.g., 2025-W38
 }
+
+export function asInputString(v: unknown): string {
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number") return String(v);
+  // prevent {} or other shapes from reaching <Form.Control value=…>
+  return "";
+}

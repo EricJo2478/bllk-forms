@@ -11,7 +11,7 @@ import {
   Spinner,
   Table,
 } from "react-bootstrap";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import FormRenderer from "../components/forms/FormRenderer";
 import type { FormDef } from "../types/form";
 import { fetchForm } from "../services/forms";
@@ -23,6 +23,7 @@ type Props = { formId: string };
 
 export default function FormRunnerPage({ formId }: Props) {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [formDef, setFormDef] = useState<FormDef | null>(null);
   const [loading, setLoading] = useState(true);
@@ -252,6 +253,17 @@ export default function FormRunnerPage({ formId }: Props) {
               ? async () => nextSequence(formId, staffKey, dateKey)
               : undefined
           }
+          onSubmitted={(docId?: string) => {
+            navigate("/submitted", {
+              replace: true,
+              state: {
+                formId,
+                staff: [staffA, staffB],
+                dateKey,
+                docId,
+              },
+            });
+          }}
         />
       )}
     </Container>

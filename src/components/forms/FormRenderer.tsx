@@ -4,15 +4,17 @@ import { Controller, Path, useForm, useWatch } from "react-hook-form";
 import type { FormDef } from "../../types/form";
 import { createSubmission } from "../../services/submissions";
 import "../../styles/touch-fields.css";
+import { asInputString } from "../../utils";
 
 type FormValues = Record<string, unknown>;
 
 type Props = {
   formDef: FormDef;
-  staff: [string, string];
+  staff: string[];
   staffKey: string;
   dateKey: string;
   getNextSequence?: () => Promise<number>;
+  onSubmitted?: (docId?: string) => void; // <-- add this
 };
 
 type ShowIf =
@@ -54,6 +56,7 @@ export default function FormRenderer({
   staffKey,
   dateKey,
   getNextSequence,
+  onSubmitted,
 }: Props) {
   const {
     register,
@@ -96,6 +99,7 @@ export default function FormRenderer({
           <Form.Group className="mb-3" key={f.id}>
             <Label f={f} />
             <Form.Control
+              type="textarea"
               {...register(f.id as Path<FormValues>, { ...rulesFor(f) })}
               placeholder={f.placeholder}
               isInvalid={!!(errors as any)?.[f.id]}
@@ -277,6 +281,41 @@ export default function FormRenderer({
           </Form.Group>
         );
       }
+      // inside your field render switch:
+      case "date": {
+        const rules = f.required
+          ? {
+              validate: (val: unknown) =>
+                (Array.isArray(val) && val.length > 0) || "Required",
+            }
+          : undefined;
+
+        const min = (f as any).min as string | undefined;
+        const max = (f as any).max as string | undefined;
+
+        return (
+          <Form.Group className="mb-3" key={f.id}>
+            <Label f={f} />
+            <Controller
+              name={f.id as Path<FormValues>}
+              control={control}
+              defaultValue={""}
+              rules={rules}
+              render={({ field }) => (
+                <Form.Control
+                  type="date"
+                  value={asInputString(field.value)}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  min={min}
+                  max={max}
+                />
+              )}
+            />
+            <Err id={f.id} />
+            {f.placeholder && <div className="form-text">{f.placeholder}</div>}
+          </Form.Group>
+        );
+      }
 
       default:
         return (
@@ -301,7 +340,7 @@ export default function FormRenderer({
         /* ignore */
       }
     }
-    await createSubmission({
+    const docRef = await createSubmission({
       formId: formDef.id,
       period: formDef.period,
       dateKey,
@@ -311,7 +350,7 @@ export default function FormRenderer({
       answers,
       createdAt: new Date(),
     });
-    alert("Submitted!");
+    onSubmitted?.(docRef?.id);
     reset({});
   };
 

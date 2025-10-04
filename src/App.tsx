@@ -7,6 +7,7 @@ import AdminFormBuilderPage from "./pages/AdminFormBuilderPage";
 import LoginPage from "./pages/LoginPage";
 import AdminSubmissionsPage from "./pages/AdminSubmissionsPage";
 import AdminStaffPage from "./pages/AdminStaffPage";
+import SubmitSuccessPage from "./pages/SubmitSuccessPage";
 
 export default function App() {
   const { loading, admin } = useAuth();
@@ -76,6 +77,7 @@ export default function App() {
         }
       />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/submitted" element={<SubmitSuccessPage />} />
     </Routes>
   );
 }

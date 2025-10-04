@@ -14,8 +14,6 @@ export type FormDef = {
   validation?: { field: string; rule: string; message: string }[];
 };
 
-export type FieldType = "text" | "number" | "boolean" | "select" | "checklist";
-
 export type BaseField = {
   id: string;
   type: FieldType;
@@ -46,4 +44,26 @@ export type Field =
   | NumberField
   | BooleanField
   | SelectField
-  | ChecklistField;
+  | ChecklistField
+  | DateField;
+
+// Add "date" to your FieldType
+export type FieldType =
+  | "text"
+  | "number"
+  | "boolean"
+  | "select"
+  | "checklist"
+  | "date";
+
+// Optionally, if you have a field union, extend it:
+export type DateField = {
+  id: string;
+  type: "date";
+  label: string;
+  required?: boolean;
+  placeholder?: string; // help text
+  min?: string; // "YYYY-MM-DD"
+  max?: string; // "YYYY-MM-DD"
+  showIf?: ShowIf; // if you have this in your types
+};

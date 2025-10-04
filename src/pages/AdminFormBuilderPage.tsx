@@ -111,7 +111,9 @@ function lightValidate(obj: any): obj is Omit<FormDef, "id"> {
     for (const f of sec.fields) {
       if (typeof f?.id !== "string") return false;
       if (
-        !["text", "number", "boolean", "select", "checklist"].includes(f.type)
+        !["text", "number", "boolean", "select", "checklist", "date"].includes(
+          f.type
+        )
       )
         return false;
       if (typeof f.label !== "string") return false;
@@ -633,6 +635,8 @@ export default function AdminFormBuilderPage() {
           ? "Select"
           : type === "checklist"
           ? "Checklist"
+          : type === "date"
+          ? "Date"
           : "Text";
       const id = ensureUniqueFieldId(sec, idify(baseLabel));
       const f: FieldWithUid = {
@@ -904,33 +908,6 @@ export default function AdminFormBuilderPage() {
               <Collapse in={!collapsed[i]}>
                 <div>
                   <Card.Body>
-                    {/* Add field toolbar */}
-                    <div className="mb-2">
-                      <ButtonGroup>
-                        <Button size="sm" onClick={() => addField(i, "text")}>
-                          + Text
-                        </Button>
-                        <Button size="sm" onClick={() => addField(i, "number")}>
-                          + Number
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => addField(i, "boolean")}
-                        >
-                          + Boolean
-                        </Button>
-                        <Button size="sm" onClick={() => addField(i, "select")}>
-                          + Select
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => addField(i, "checklist")}
-                        >
-                          + Checklist
-                        </Button>
-                      </ButtonGroup>
-                    </div>
-
                     {/* Fields table */}
                     {sec.fields.length === 0 ? (
                       <div className="text-muted">
@@ -986,6 +963,7 @@ export default function AdminFormBuilderPage() {
                                       <option value="checklist">
                                         checklist
                                       </option>
+                                      <option value="date">date</option>
                                     </Form.Select>
                                   </td>
                                   <td className="text-center">
@@ -1174,6 +1152,35 @@ export default function AdminFormBuilderPage() {
                         </Table>
                       </div>
                     )}
+                    {/* Add field toolbar */}
+                    <div className="mb-2">
+                      <ButtonGroup>
+                        <Button size="sm" onClick={() => addField(i, "text")}>
+                          + Text
+                        </Button>
+                        <Button size="sm" onClick={() => addField(i, "number")}>
+                          + Number
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => addField(i, "boolean")}
+                        >
+                          + Boolean
+                        </Button>
+                        <Button size="sm" onClick={() => addField(i, "select")}>
+                          + Select
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => addField(i, "checklist")}
+                        >
+                          + Checklist
+                        </Button>
+                        <Button size="sm" onClick={() => addField(i, "date")}>
+                          + Date
+                        </Button>
+                      </ButtonGroup>
+                    </div>
                   </Card.Body>
                 </div>
               </Collapse>
