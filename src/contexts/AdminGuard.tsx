@@ -12,7 +12,7 @@ type Props = {
 
 export default function AdminRoute({
   children,
-  allowEmails = ["eric@bllk.forms"],
+  allowEmails = ["eric@bllk.forms", "jackson@bllk.forms"],
 }: Props) {
   const { user, loading, signOut } = useAuth() as any; // provider-agnostic
   const loc = useLocation();
